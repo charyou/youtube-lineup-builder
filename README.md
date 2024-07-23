@@ -107,14 +107,30 @@ yarn dev
 
 We welcome contributions to the YouTube LineUp Builder project! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
-## License
+## Usage Restrictions
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+YouTube LineUp Builder is intended for personal, non-commercial use only. 
+
+- **Personal Use**: You are free to use this tool for your personal YouTube channel analysis and management.
+- **Non-Commercial**: This tool should not be used for any commercial purposes.
+- **No Commercial Implementation**: Integration or implementation of this tool or its code into any commercial product or service is strictly prohibited.
+
+By using YouTube LineUp Builder, you agree to abide by these usage restrictions. If you're interested in commercial use or implementation, please contact the project maintainer to discuss licensing options.
+
+## Contributing
+
+We welcome contributions to the YouTube LineUp Builder project for bug fixes, performance improvements, and feature enhancements within the scope of personal use. Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+Note that by contributing to this project, you agree that your contributions will be licensed under the same terms as the project.
 
 ## Acknowledgments
 
 - Thanks to the YouTube Data API for making this project possible
 - Shoutout to the amazing React and Next.js communities for their invaluable resources and support
+
+## Disclaimer
+
+YouTube LineUp Builder is not affiliated with, endorsed by, or sponsored by YouTube or any of its affiliates. This tool is an independent project designed for personal use in analyzing publicly available YouTube channel data.
 
 ## Contact
 
