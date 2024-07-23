@@ -35,8 +35,9 @@ YouTube LineUp Builder is a powerful web application designed to help content cr
 ### Installation
 
 1. Clone the repository:
-
+'''
 git clone https://github.com/yourusername/youtube-lineup-builder.git
+'''
 Copy
 2. Navigate to the project directory:
 cd youtube-lineup-builder
