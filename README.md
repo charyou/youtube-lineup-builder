@@ -2,10 +2,19 @@
 
 ## Overview
 
-YouTube LineUp Builder is a powerful web application designed to help content creators, marketers, and YouTube enthusiasts efficiently manage and analyze multiple YouTube channels. This tool allows users to input YouTube channel URLs, fetch channel data, display it in a customizable grid or list view, and save/load channel lists for easy comparison and analysis.
+YouTube LineUp Builder is a powerful web application designed to help content creators, marketers, and YouTube enthusiasts efficiently manage and analyze multiple YouTube channels. This tool streamlines the process of tracking and comparing various YouTube channels, offering insights that can inform content strategies, collaboration opportunities, and competitive analysis.
 
-![YouTube LineUp Builder Screenshot](path/to/screenshot.png)
+Key features include:
+- Bulk import of YouTube channels via URLs
+- Detailed channel statistics display (subscribers, video count, etc.)
+- Customizable grid and list views for easy comparison
+- Sorting and filtering capabilities for in-depth analysis
+- Save and load functionality for different channel lists
+- Data export for further analysis in external tools
 
+Whether you're a content creator looking to understand your niche, a marketer researching potential partnerships, or a YouTube enthusiast tracking your favorite channels, YouTube LineUp Builder offers a user-friendly interface to simplify your workflow and enhance your YouTube channel analysis.
+
+![YouTube LineUp Builder Screenshot](screenshots/main-interface.png)
 ## Features
 
 - **Channel Data Fetching**: Easily input multiple YouTube channel URLs and fetch relevant data.
