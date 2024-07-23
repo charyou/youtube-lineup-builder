@@ -35,30 +35,41 @@ YouTube LineUp Builder is a powerful web application designed to help content cr
 ### Installation
 
 1. Clone the repository:
-'''
+```
 git clone https://github.com/yourusername/youtube-lineup-builder.git
-'''
+```
 Copy
+
 2. Navigate to the project directory:
+```
 cd youtube-lineup-builder
-Copy
+```
+
 3. Install dependencies:
+```
 npm install
 Copyor
 yarn install
-Copy
+```
+
 4. Set up environment variables:
 - Copy `.env.example` to `.env.local`
 - Fill in the required API keys and database connection strings
 
 5. Run database migrations:
+```
 npx prisma migrate dev
-Copy
+```
+
 6. Start the development server:
+```
 npm run dev
-Copyor
+```
+or
+```
 yarn dev
-Copy
+```
+
 7. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
 ## Usage
