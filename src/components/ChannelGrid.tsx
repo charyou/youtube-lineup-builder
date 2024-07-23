@@ -4,9 +4,12 @@ import ChannelCard from './ChannelCard';
 
 interface Props {
   channels: Channel[];
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
-export default function ChannelGrid({ channels }: Props) {
+export default function ChannelGrid({ channels, currentPage, totalPages, onPageChange }: Props) {
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
 
   if (channels.length === 0) {
@@ -19,19 +22,40 @@ export default function ChannelGrid({ channels }: Props) {
 
   return (
     <div>
-      <div className="mb-4">
-        <button 
-          onClick={() => setLayout('grid')}
-          className={`mr-2 px-4 py-2 rounded ${layout === 'grid' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-        >
-          Grid
-        </button>
-        <button 
-          onClick={() => setLayout('list')}
-          className={`px-4 py-2 rounded ${layout === 'list' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-        >
-          List
-        </button>
+      <div className="mb-4 flex justify-between items-center">
+        <div>
+          <button 
+            onClick={() => setLayout('grid')}
+            className={`mr-2 px-4 py-2 rounded ${layout === 'grid' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+          >
+            Grid
+          </button>
+          <button 
+            onClick={() => setLayout('list')}
+            className={`px-4 py-2 rounded ${layout === 'list' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+          >
+            List
+          </button>
+        </div>
+        <div>
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-4 py-2 rounded bg-gray-200 disabled:opacity-50 mr-2"
+          >
+            Previous
+          </button>
+          <span className="mx-2">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 rounded bg-gray-200 disabled:opacity-50 ml-2"
+          >
+            Next
+          </button>
+        </div>
       </div>
       <div className={layout === 'grid' 
         ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
