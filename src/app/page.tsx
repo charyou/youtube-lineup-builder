@@ -21,42 +21,87 @@ export default function Home() {
   const [channelLists, setChannelLists] = useState<ChannelList[]>([]);
 
   useEffect(() => {
-    const savedChannels = localStorage.getItem('channels');
-    if (savedChannels) {
-      setChannels(JSON.parse(savedChannels));
-    }
+    async function fetchData() {
+      const channelsResponse = await fetch('/api/channels');
+      const channelsData = await channelsResponse.json();
+      setChannels(channelsData);
 
-    const savedLists = localStorage.getItem('channelLists');
-    if (savedLists) {
-      setChannelLists(JSON.parse(savedLists));
+      const listsResponse = await fetch('/api/channelLists');
+      const listsData = await listsResponse.json();
+      setChannelLists(listsData);
+    }
+    fetchData();
+  }, []);
+
+  const handleUpdateChannels = useCallback(async (newChannels: Channel[]) => {
+    try {
+      const response = await fetch('/api/channels', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newChannels),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const updatedChannels = await response.json();
+      setChannels((prevChannels) => [...prevChannels, ...updatedChannels]);
+    } catch (error) {
+      console.error('Error updating channels:', error);
+      // Handle error (e.g., show an error message to the user)
     }
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('channels', JSON.stringify(channels));
-  }, [channels]);
+  const filteredAndSortedChannels = useMemo(() => {
+    return channels
+      .filter(channel => channel.subscriberCount >= filterValue)
+      .sort((a, b) => {
+        if (sortBy === 'name') return a.name.localeCompare(b.name);
+        return b[sortBy === 'videos' ? 'videoCount' : 'subscriberCount'] - a[sortBy === 'videos' ? 'videoCount' : 'subscriberCount'];
+      });
+  }, [channels, sortBy, filterValue, filterApplied]);
 
-  useEffect(() => {
-    localStorage.setItem('channelLists', JSON.stringify(channelLists));
-  }, [channelLists]);
+  const handleSaveList = useCallback(async (name: string, description: string) => {
+    const response = await fetch('/api/channelLists', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name,
+        description,
+        channels: filteredAndSortedChannels,
+      }),
+    });
+    const newList = await response.json();
+    setChannelLists((prevLists) => [...prevLists, newList]);
+  }, [filteredAndSortedChannels]);
 
-  const handleUpdateChannels = useCallback((newChannels: Channel[]) => {
-    setChannels(prevChannels => [...prevChannels, ...newChannels]);
+  const handleLoadList = useCallback(async (listId: string) => {
+    const response = await fetch(`/api/channelLists/${listId}`);
+    const list = await response.json();
+    if (list) {
+      setChannels(list.items.map((item: any) => item.channel));
+      setFilterValue(0);
+      setFilterApplied(false);
+      setCurrentPage(1);
+    }
   }, []);
 
-  const debouncedSetFilterValue = useMemo(
-    () => debounce((value: number) => setFilterValue(value), 300),
-    []
-  );
+  const handleDeleteList = useCallback(async (listId: string) => {
+    await fetch(`/api/channelLists/${listId}`, { method: 'DELETE' });
+    setChannelLists((prevLists) => prevLists.filter((l) => l.id !== listId));
+  }, []);
 
   const handleFilterChange = useCallback((value: number) => {
     if (value < 0) {
       setFilterError("Filter value cannot be negative");
     } else {
       setFilterError(null);
-      debouncedSetFilterValue(value);
+      setFilterValue(value);
     }
-  }, [debouncedSetFilterValue]);
+  }, []);
 
   const handleApplyFilter = useCallback(() => {
     setFilterApplied(true);
@@ -70,19 +115,6 @@ export default function Home() {
     setFilterError(null);
   }, []);
 
-
-  const filteredAndSortedChannels = useMemo(() => {
-    console.log('Sorting channels by:', sortBy);
-    console.log('Filtering channels with min subscribers:', filterValue);
-    
-    return channels
-      .filter(channel => channel.subscribers >= filterValue)
-      .sort((a, b) => {
-        if (sortBy === 'name') return a.name.localeCompare(b.name);
-        return b[sortBy] - a[sortBy];
-      });
-  }, [channels, sortBy, filterValue, filterApplied]);
-
   const paginatedChannels = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     return filteredAndSortedChannels.slice(startIndex, startIndex + ITEMS_PER_PAGE);
@@ -94,37 +126,13 @@ export default function Home() {
     setCurrentPage(newPage);
   }, []);
 
-  const handleSaveList = useCallback((name: string, description: string) => {
-    const newList: ChannelList = {
-      id: Date.now().toString(),
-      name,
-      description,
-      channels: filteredAndSortedChannels,
-    };
-    setChannelLists((prevLists) => [...prevLists, newList]);
-  }, [filteredAndSortedChannels]);
-
-  const handleLoadList = useCallback((listId: string) => {
-    const list = channelLists.find((l) => l.id === listId);
-    if (list) {
-      setChannels(list.channels);
-      setFilterValue(0);
-      setFilterApplied(false);
-      setCurrentPage(1);
-    }
-  }, [channelLists]);
-
-  const handleDeleteList = useCallback((listId: string) => {
-    setChannelLists((prevLists) => prevLists.filter((l) => l.id !== listId));
-  }, []);
-
   const handleExportChannels = useCallback(() => {
     const csvContent = [
       ['Channel Name', 'Subscriber Count', 'Video Count', 'Channel URL'],
       ...filteredAndSortedChannels.map(channel => [
         channel.name,
-        channel.subscribers.toString(),
-        channel.videos.toString(),
+        channel.subscriberCount.toString(),
+        channel.videoCount.toString(),
         `https://www.youtube.com/channel/${channel.id}`
       ])
     ].map(row => row.join(',')).join('\n');

@@ -52,9 +52,10 @@ export async function fetchChannelDetails(channelId: string): Promise<Channel | 
       const channelData: Channel = {
         id: channel.id,
         name: channel.snippet.title,
-        subscribers: parseInt(channel.statistics.subscriberCount),
-        videos: parseInt(channel.statistics.videoCount),
-        thumbnail: channel.snippet.thumbnails.medium.url,
+        description: channel.snippet.description,
+        subscriberCount: parseInt(channel.statistics.subscriberCount),
+        videoCount: parseInt(channel.statistics.videoCount),
+        thumbnailUrl: channel.snippet.thumbnails.medium.url,
       };
       console.log('Parsed channel data:', channelData);
       return channelData;

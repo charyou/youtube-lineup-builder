@@ -14,7 +14,7 @@ export default function ChannelCard({ channel, layout }: Props) {
   };
 
   const handleImageError = () => {
-    console.error(`Failed to load thumbnail for channel: ${channel.name}, URL: ${channel.thumbnail}`);
+    console.error(`Failed to load thumbnail for channel: ${channel.name}, URL: ${channel.thumbnailUrl}`);
     setImageError(true);
   };
 
@@ -26,7 +26,7 @@ export default function ChannelCard({ channel, layout }: Props) {
         </div>
       ) : (
         <img 
-          src={channel.thumbnail} 
+          src={channel.thumbnailUrl} 
           alt={channel.name} 
           className="object-cover w-full h-full"
           onError={handleImageError}
@@ -39,7 +39,7 @@ export default function ChannelCard({ channel, layout }: Props) {
     <div className="p-3">
       <h2 className="text-base font-bold mb-1 truncate">{channel.name}</h2>
       <p className="text-sm text-gray-600">
-        <span className="font-semibold">{channel.subscribers.toLocaleString()}</span> subscribers • {channel.videos} videos
+        <span className="font-semibold">{channel.subscriberCount.toLocaleString()}</span> subscribers • {channel.videoCount} videos
       </p>
     </div>
   );

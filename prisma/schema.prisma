@@ -1,0 +1,45 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Channel {
+  id              String @id
+  name            String
+  description     String?
+  subscriberCount Int
+  videoCount      Int
+  thumbnailUrl    String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  ChannelListItem ChannelListItem[]
+}
+
+model ChannelList {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  items       ChannelListItem[]
+}
+
+model ChannelListItem {
+  id            String     @id @default(cuid())
+  channelList   ChannelList @relation(fields: [channelListId], references: [id])
+  channelListId String  // Fixed typo here
+  channel       Channel    @relation(fields: [channelId], references: [id])
+  channelId     String
+  order         Int
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@unique([channelListId, channelId])
+}
