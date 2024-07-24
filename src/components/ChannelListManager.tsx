@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { ChannelList } from '@/types';
-import { Channel } from '@/types';
+import { ChannelList, Channel } from '@/types';
 
 interface Props {
   channelLists: ChannelList[];
