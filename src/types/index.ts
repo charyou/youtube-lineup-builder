@@ -5,6 +5,8 @@ export interface Channel {
   subscriberCount: number;
   videoCount: number;
   thumbnailUrl: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface ChannelList {

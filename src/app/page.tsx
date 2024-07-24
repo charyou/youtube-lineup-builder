@@ -22,19 +22,48 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchData() {
-      const channelsResponse = await fetch('/api/channels');
-      const channelsData = await channelsResponse.json();
-      setChannels(channelsData);
-
-      const listsResponse = await fetch('/api/channelLists');
-      const listsData = await listsResponse.json();
-      setChannelLists(listsData);
+      try {
+        const channelsResponse = await fetch('/api/channels');
+        if (!channelsResponse.ok) {
+          throw new Error(`HTTP error! status: ${channelsResponse.status}`);
+        }
+        const channelsData = await channelsResponse.json();
+        setChannels(Array.isArray(channelsData) ? channelsData : []);
+  
+        const listsResponse = await fetch('/api/channelLists');
+        if (!listsResponse.ok) {
+          throw new Error(`HTTP error! status: ${listsResponse.status}`);
+        }
+        const listsData = await listsResponse.json();
+        setChannelLists(Array.isArray(listsData) ? listsData : []);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Optionally set an error state here to display to the user
+      }
     }
     fetchData();
   }, []);
 
+  useEffect(() => {
+    async function fetchInitialChannels() {
+      try {
+        const response = await fetch('/api/channels');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const initialChannels = await response.json();
+        console.log('Fetched initial channels:', initialChannels);
+        setChannels(initialChannels);
+      } catch (error) {
+        console.error('Error fetching initial channels:', error);
+      }
+    }
+    fetchInitialChannels();
+  }, []);
+
   const handleUpdateChannels = useCallback(async (newChannels: Channel[]) => {
     try {
+      console.log('Sending channels to API:', newChannels);
       const response = await fetch('/api/channels', {
         method: 'POST',
         headers: {
@@ -43,10 +72,17 @@ export default function Home() {
         body: JSON.stringify(newChannels),
       });
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorBody = await response.text();
+        console.error('Error response body:', errorBody);
+        throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
       }
-      const updatedChannels = await response.json();
-      setChannels((prevChannels) => [...prevChannels, ...updatedChannels]);
+      const updatedChannels: Channel[] = await response.json();
+      console.log('Channels updated:', updatedChannels);
+      
+      // Replace the entire channels state with the new updated channels
+      setChannels(updatedChannels);
+      
+      console.log('New channels state:', updatedChannels);
     } catch (error) {
       console.error('Error updating channels:', error);
       // Handle error (e.g., show an error message to the user)
@@ -54,6 +90,11 @@ export default function Home() {
   }, []);
 
   const filteredAndSortedChannels = useMemo(() => {
+    console.log('Filtering and sorting channels:', channels);
+    if (!Array.isArray(channels)) {
+      console.error('Channels is not an array:', channels);
+      return [];
+    }
     return channels
       .filter(channel => channel.subscriberCount >= filterValue)
       .sort((a, b) => {
@@ -63,29 +104,45 @@ export default function Home() {
   }, [channels, sortBy, filterValue, filterApplied]);
 
   const handleSaveList = useCallback(async (name: string, description: string) => {
-    const response = await fetch('/api/channelLists', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name,
-        description,
-        channels: filteredAndSortedChannels,
-      }),
-    });
-    const newList = await response.json();
-    setChannelLists((prevLists) => [...prevLists, newList]);
+    try {
+      const response = await fetch('/api/channelLists', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          description,
+          channels: filteredAndSortedChannels,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const newList = await response.json();
+      setChannelLists((prevLists) => [...prevLists, newList]);
+    } catch (error) {
+      console.error('Error saving list:', error);
+      // Optionally set an error state here to display to the user
+    }
   }, [filteredAndSortedChannels]);
-
+  
   const handleLoadList = useCallback(async (listId: string) => {
-    const response = await fetch(`/api/channelLists/${listId}`);
-    const list = await response.json();
-    if (list) {
-      setChannels(list.items.map((item: any) => item.channel));
-      setFilterValue(0);
-      setFilterApplied(false);
-      setCurrentPage(1);
+    try {
+      const response = await fetch(`/api/channelLists/${listId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const list = await response.json();
+      if (list && Array.isArray(list.items)) {
+        setChannels(list.items.map((item: any) => item.channel));
+        setFilterValue(0);
+        setFilterApplied(false);
+        setCurrentPage(1);
+      }
+    } catch (error) {
+      console.error('Error loading list:', error);
+      // Optionally set an error state here to display to the user
     }
   }, []);
 

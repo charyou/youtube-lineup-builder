@@ -10,6 +10,7 @@ interface Props {
 }
 
 export default function ChannelGrid({ channels, currentPage, totalPages, onPageChange }: Props) {
+  console.log('Rendering ChannelGrid with channels:', channels);
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
 
   if (channels.length === 0) {
