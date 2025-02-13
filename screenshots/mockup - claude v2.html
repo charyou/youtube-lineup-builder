@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Lineup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .channel-card:hover .category-indicator {
+      width: auto;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+    
+    .channel-card:hover .category-text {
+      opacity: 1;
+    }
+    
+    .category-indicator {
+      transition: all 0.2s ease-in-out;
+      width: 0.375rem;
+    }
+    
+    .category-text {
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+      white-space: nowrap;
+    }
+    
+    .expand-btn {
+      transition: transform 0.2s ease-in-out;
+    }
+    
+    .expand-btn.expanded {
+      transform: rotate(180deg);
+    }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <div class="max-w-6xl mx-auto p-4">
+    <!-- Header Controls -->
+    <div class="mb-4 flex items-center justify-between">
+      <div class="relative flex-grow max-w-2xl">
+        <input type="text" placeholder="Enter YouTube Channel URLs (one per line)" class="w-full p-2 pr-20 border rounded">
+        <button class="absolute right-1 top-1 bg-blue-500 text-white px-4 py-1 rounded text-sm">Fetch</button>
+      </div>
+      <button id="expand-all-btn" class="ml-4 flex items-center gap-1 px-3 py-2 bg-gray-100 rounded hover:bg-gray-200">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+        Expand All
+      </button>
+    </div>
+
+    <!-- Category Legend -->
+    <div class="mb-4 flex items-center gap-4 bg-gray-50 p-3 rounded-lg">
+      <span class="text-sm text-gray-500 font-medium">Categories:</span>
+      <div class="flex gap-4 flex-wrap">
+        <div class="flex items-center bg-white rounded-l shadow-sm">
+          <div class="w-1.5 h-6 bg-red-500 rounded-l"></div>
+          <span class="text-sm text-gray-600 px-3 py-1">Gaming</span>
+        </div>
+        <div class="flex items-center bg-white rounded-l shadow-sm">
+          <div class="w-1.5 h-6 bg-purple-500 rounded-l"></div>
+          <span class="text-sm text-gray-600 px-3 py-1">Music</span>
+        </div>
+        <div class="flex items-center bg-white rounded-l shadow-sm">
+          <div class="w-1.5 h-6 bg-blue-500 rounded-l"></div>
+          <span class="text-sm text-gray-600 px-3 py-1">Technology</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Channel Grid -->
+    <div id="channel-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+      <!-- Dynamically generated cards will be injected here -->
+    </div>
+  </div>
+  
+  <script>
+    // Sample data with a description for each channel.
+    const sampleChannels = [
+      {
+        id: 1,
+        name: "Gaming Channel",
+        category: "Gaming",
+        image: "https://picsum.photos/320/180?1",
+        avatar: "https://picsum.photos/48/48?1",
+        subscribers: "158,000",
+        videos: "659",
+        lastUpdated: "Last updated: 2d ago",
+        description: "Welcome to the ultimate Gaming Channel where epic game guides and tips come alive.",
+        stats: { views: "25K/video", engagement: "8.2%", frequency: "3/week", growth: "+5.2%" }
+      },
+      {
+        id: 2,
+        name: "Music Channel",
+        category: "Music",
+        image: "https://picsum.photos/320/180?2",
+        avatar: "https://picsum.photos/48/48?2",
+        subscribers: "1,220,000",
+        videos: "147",
+        lastUpdated: "Last updated: 1d ago",
+        description: "Tune in for the latest tracks and mixes from top artists around the globe.",
+        stats: { views: "150K/video", engagement: "12.5%", frequency: "2/week", growth: "+3.8%" }
+      },
+      {
+        id: 3,
+        name: "Tech Insights",
+        category: "Technology",
+        image: "https://picsum.photos/320/180?3",
+        avatar: "https://picsum.photos/48/48?3",
+        subscribers: "890,000",
+        videos: "312",
+        lastUpdated: "Last updated: 3d ago",
+        description: "Discover the latest in technology with reviews, tutorials, and insights.",
+        stats: { views: "80K/video", engagement: "7.5%", frequency: "4/week", growth: "+4.1%" }
+      }
+    ];
+    
+    // Duplicate the sample data to simulate multiple cards.
+    const channels = [];
+    for (let i = 0; i < 3; i++) {
+      sampleChannels.forEach(ch => {
+        const copy = { ...ch, id: ch.id + i * sampleChannels.length };
+        channels.push(copy);
+      });
+    }
+    
+    // Unified card template for all channels (using the design of your first card).
+    function createCard(channel) {
+      let categoryColor = "";
+      if (channel.category === "Gaming") {
+        categoryColor = "bg-red-500";
+      } else if (channel.category === "Music") {
+        categoryColor = "bg-purple-500";
+      } else if (channel.category === "Technology") {
+        categoryColor = "bg-blue-500";
+      } else {
+        categoryColor = "bg-gray-500";
+      }
+      
+      return `
+      <div class="channel-card bg-white">
+        <div class="relative">
+          <img src="${channel.image}" alt="" class="w-full h-28 object-cover rounded-t-lg">
+          <div class="absolute right-0 top-0 bottom-0 group">
+            <div class="category-indicator h-full ${categoryColor} rounded-l flex items-center text-xs text-white">
+              <span class="category-text">${channel.category}</span>
+            </div>
+          </div>
+          <img src="${channel.avatar}" alt="" class="absolute -bottom-12 left-4 w-15 h-15 rounded-md border-2 border-white shadow-sm z-20">
+        </div>
+  
+        <div class="px-8 pt-2 pb-2">
+          <div class="flex items-center justify-between">
+            <div class="pl-14 min-w-0">
+              <h3 class="font-medium text-sm truncate">${channel.name}</h3>
+              <div class="flex items-center gap-3 text-xs text-gray-600">
+                <span class="flex items-center gap-1">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                  ${channel.subscribers}
+                </span>
+                <span class="flex items-center gap-1">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                  </svg>
+                  ${channel.videos}
+                </span>
+              </div>
+            </div>
+            <button class="text-gray-500 hover:text-gray-700 p-1" onclick="toggleExpand(this)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="expand-btn">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+  
+        <!-- Expanded Content (using a static class "expandable" for reliable selection) -->
+        <div class="expandable hidden px-3 py-2 bg-gray-50 text-xs border-t">
+          <div class="text-gray-500 mb-2">${channel.lastUpdated}</div>
+          <div class="mb-2 text-gray-700">${channel.description}</div>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="flex items-center gap-1 text-gray-600">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+              </svg>
+              <span>${channel.stats.views}</span>
+            </div>
+            <div class="flex items-center gap-1 text-gray-600">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span>Engagement: ${channel.stats.engagement}</span>
+            </div>
+            <div class="flex items-center gap-1 text-gray-600">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>${channel.stats.frequency}</span>
+            </div>
+            <div class="flex items-center gap-1 text-gray-600">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+              </svg>
+              <span>Growth: ${channel.stats.growth}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      `;
+    }
+    
+    // Populate the grid with all channel cards
+    const gridEl = document.getElementById('channel-grid');
+    gridEl.innerHTML = channels.map(createCard).join('');
+    
+    // Toggle a single card's expand state using the static "expandable" class
+    function toggleExpand(button) {
+      const card = button.closest('.channel-card');
+      const expandedContent = card.querySelector('.expandable');
+      const expandBtn = card.querySelector('.expand-btn');
+      
+      expandedContent.classList.toggle('hidden');
+      expandBtn.classList.toggle('expanded');
+    }
+    
+    // Expand/Collapse All functionality
+    document.getElementById('expand-all-btn').addEventListener('click', function() {
+      const allCards = document.querySelectorAll('.channel-card');
+      const isExpanding = this.textContent.includes('Expand');
+      
+      allCards.forEach(card => {
+        const expandedContent = card.querySelector('.expandable');
+        const expandBtn = card.querySelector('.expand-btn');
+        if (isExpanding) {
+          expandedContent.classList.remove('hidden');
+          expandBtn.classList.add('expanded');
+        } else {
+          expandedContent.classList.add('hidden');
+          expandBtn.classList.remove('expanded');
+        }
+      });
+      
+      this.innerHTML = isExpanding ? 
+        `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+           <polyline points="4 14 10 14 10 20"></polyline>
+           <polyline points="20 10 14 10 14 4"></polyline>
+           <line x1="14" y1="10" x2="21" y2="3"></line>
+           <line x1="3" y1="21" x2="10" y2="14"></line>
+         </svg> Collapse All` :
+        `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+           <polyline points="6 9 12 15 18 9"></polyline>
+         </svg> Expand All`;
+    });
+  </script>
+</body>
+</html>
